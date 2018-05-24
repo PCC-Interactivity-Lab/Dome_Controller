@@ -1,3 +1,5 @@
 # Dome-Controller-Housing
 
-The controller housing consists of 6 pentagonal panels, 10 hexagonal panels, and 5 trapezoidal (half hexagon) panels. Each panel meets at a 16 degree angle, and mate via a set of two slots and buiscuits per face. 
+The controller housing consists of 6 "IR Pentagon Panel" panels, 10 "IR Hexagon Panel" panels, and 5 "IR Half Hexagon Panels" panels. Each panel meets at roughly a 18.65 degree angle, and mate via slots and buiscuits.
+
+Included are componant stls, as well as Creality CR10 gcode for tabs, single panels, and sets of panels. (e.g. "... x1, ...x4").  
