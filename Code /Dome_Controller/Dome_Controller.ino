@@ -22,7 +22,7 @@
   #include <avr/power.h>
 #endif
 
-#define PIN            6
+#define PIN            13
 
 #define NUMPIXELS      21
 
@@ -38,7 +38,7 @@ char pass[] = "thankyou";    // your network password (use for WPA, or use as ke
 //the Arduino's IP (only for recieving)
 // IPAddress ip(128, 32, 122, 252);
 //destination IP
-IPAddress outIp1(192, 168, 1, 6);
+IPAddress outIp1(192, 168, 1, 9 );
 IPAddress outIp2(192, 168, 1, 9);
 IPAddress outIp3(192, 168, 1, 11);
 const unsigned int outPort = 9999;
@@ -51,23 +51,25 @@ Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ80
 int trig[NUMPIXELS]; 
 int fade[NUMPIXELS];
 int panel[NUMPIXELS];
-int irPins[] = {14,15,16,17,18,19,20,21,22};
+int irPins[] = {15, 16, 17, 18, 19};
 
 //Mux control pins
-int s0 = 8;
-int s1 = 9;
-int s2 = 10;
-int s3 = 11;
+int s0 = 5;
+int s1 = 6;
+int s2 = 9;
+int s3 = 10;
 
 //Mux in “SIG” pin
-int SIG_pin = 0;
+int SIG_pin = 14;
 
 
 byte r;
 byte g;
 byte b;
 
-int delayval = 2; //Seconds that it takes for Neopixel to fade 
+int fadeTime = 5; //fadetime in frames
+
+int delayval = 0; //Seconds that it takes for Neopixel to fade 
 
 int frameCounter = 0;
 
@@ -89,18 +91,18 @@ digitalWrite(s3, LOW);
 digitalWrite(2, HIGH);
 
   Serial.begin(9600);
-  delay(200);
+//  delay(200);
   //  while (!Serial) {
   //    Serial.println("waiting for serial..."); // wait for serial port to connect. Needed for native USB port only
   //  }
 
   WiFi.setPins(8, 7, 4); // CS, irq, rst
 
-  delay(1000);
+//  delay(1000);
 
     //  Serial.println("Serial port connected");
   // check for the presence of the shield:
-  Serial.println(WiFi.status());
+  //Serial.println(WiFi.status());
   if (WiFi.status() == WL_NO_SHIELD) {
     //Serial.println("WiFi shield not present");
     // don't continue:
@@ -117,7 +119,7 @@ digitalWrite(2, HIGH);
     // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
     status = WiFi.begin(ssid, pass);
     // wait 3 seconds for connection:
-    delay(2000);
+//   delay(2000);
   }
 
   // Serial.println("Connected to wifi");
@@ -130,15 +132,15 @@ digitalWrite(2, HIGH);
 
 //  connection successful code (blink LED x3)
   digitalWrite(13, HIGH);
-  delay(100);
+//  delay(100);
   digitalWrite(13, LOW);
-  delay(100);
+//  delay(100);
   digitalWrite(13, HIGH);
-  delay(100);
+//  delay(100);
   digitalWrite(13, LOW);
-  delay(100);
+//  delay(100);
   digitalWrite(13, HIGH);
-  delay(1000);
+//  delay(1000);
   digitalWrite(13, LOW);
 }
 
@@ -209,25 +211,24 @@ void loop() {
 //Loop through and read all 16 values
 //Reports back Value at channel 6 is: 346
 //int val = readMux(15);
-  for(int i = 0; i < 16; i ++){
-//    Serial.print("Value at channel ");
-//    Serial.print(i); Serial.print("is : ");
-//    Serial.println(readMux(i));
-//    delay(1000);
-
-      float newHue = map(frameCounter, 0, 600, 0, 359);
-      Serial.println(newHue);
-      HSV_to_RGB(newHue, 100, fade[i], &r, &g, &b);
-      pixels.setPixelColor(i, pixels.Color(r,g,b));
-      pixels.show();
-      delay(delayval);
-      if (fade[i] > 0){
-        fade[i]--;
-   }
-  }
+//  for(int i = 0; i < 16; i ++){
+////    Serial.print("Value at channel ");
+////    Serial.print(i); Serial.print("is : ");
+////    Serial.println(readMux(i));
+////    delay(1000);
+//
+//      float newHue = map(frameCounter, 0, 600, 0, 359);
+//      //Serial.println(newHue);
+//      HSV_to_RGB(newHue, 100, fade[i], &r, &g, &b);
+//      pixels.setPixelColor(i, pixels.Color(r,g,b));
+//      pixels.show();
+//      if (fade[i] > 0){
+//        fade[i]--;
+//   }
+//  }
 
     
-    frameCounter = frameCounter%600; //60 second loop if delay is 10ms
+    frameCounter = frameCounter%2400;
     for (int i=0;i<NUMPIXELS;i++){
       if (i <= 15){
         panel[i] = readMux(i);
@@ -242,31 +243,29 @@ void loop() {
       }//end of  if (i <= 15){
       
       if (i > 15){
-        panel[i] = analogRead(i-2);
+        panel[i] = analogRead(i-1);
+        //Serial.println (panel[i]);
         if (panel[i] < 100){
           trig[i] = HIGH;
           if (trig[i] = HIGH){
             fade[i] = 100;
-          }else{
+          }
+         }else{
             trig[i] = LOW;
           }
         }
+      
+      float newHue = map(frameCounter, 0, 2400, 0, 359);
+//      Serial.println(newHue);
+      if (fade[i] > 0){
+        fade[i] = fade[i] - fadeTime;
       }
-    
-      float newHue = map(frameCounter, 0, 600, 0, 359);
-      Serial.println(newHue);
       HSV_to_RGB(newHue, 100, fade[i], &r, &g, &b);
       pixels.setPixelColor(i, pixels.Color(r,g,b));
       pixels.show();
-      delay(delayval);
-      if (fade[i] > 0){
-        fade[i]--;
-      }
+      //delay(delayval);
 //      Serial.println (fade[i]);
-      pixels.show();
-
-   delay(delayval);
-   frameCounter++;
+      frameCounter++;
   }//end for loop
   long newRotaryPos;
     newRotaryPos = rotaryEnc.read();
