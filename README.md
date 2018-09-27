@@ -6,3 +6,5 @@ When up and running, the Ir sensors trigger its corresponding neopixel, and send
 
 Included are; componant stls, as well as Creality CR10 gcode for tabs, single panels, and sets of panels. (e.g. "... x1, ...x3"), Adobe Illustrator files for laser cutting a base, and arduino code. 
 
+A video of the controller in action can be found here https://vimeo.com/279008987
+
